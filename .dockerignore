@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.md
+*.log
+.env
+.DS_Store
+.server.pid
+test.js
+cli.js
+client.py
+examples/
+dist/
+.github/
+.vscode/

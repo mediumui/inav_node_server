@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  inav-server:
+    image: inav-node-server:latest
+    container_name: inav-api-server
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      LOG_LEVEL: info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    volumes:
+      # 可选：挂载日志目录
+      - ./logs:/app/logs
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+# 可选：添加 Nginx 反向代理
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: inav-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - ./ssl:/etc/nginx/ssl
+  #   depends_on:
+  #     - inav-server
+  #   restart: unless-stopped
+
+volumes:
+  logs:
