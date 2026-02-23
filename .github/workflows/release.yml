@@ -123,30 +123,9 @@ jobs:
           asset_name: inav-node-server-${{ needs.create-release.outputs.version }}.tgz
           asset_content_type: application/gzip
 
-  publish-npm:
-    runs-on: ubuntu-latest
-    if: ${{ secrets.NPM_TOKEN != '' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: 设置 Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          registry-url: "https://registry.npmjs.org"
-
-      - name: 安装依赖
-        run: npm install
-
-      - name: 发布到 NPM
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   publish-docker:
     runs-on: ubuntu-latest
-    if: ${{ secrets.DOCKER_USERNAME != '' }}
+    if: secrets.DOCKER_USERNAME != ''
 
     steps:
       - uses: actions/checkout@v4
