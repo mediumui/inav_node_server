@@ -3,7 +3,7 @@ name: Release & Publish
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   create-release:
@@ -45,36 +45,36 @@ jobs:
           release_name: Release v${{ env.VERSION }}
           body: |
             # INAV Node Server v${{ env.VERSION }}
-            
+
             ## 新增功能
             - Decompile 功能已修复和优化
             - 多格式打包支持 (ZIP、NPM、Docker)
             - 完整的 REST API
             - Docker Compose 一键启动
-            
+
             ## 使用指南
-            
+
             ### 快速开始
             ```bash
             docker-compose up -d
             ```
-            
+
             ### 查看 API 文档
             ```
             http://localhost:3000/docs
             ```
-            
+
             ### 验证健康状态
             ```bash
             curl http://localhost:3000/health
             ```
-            
+
             ## 文档
             - [快速开始](https://github.com/mediumui/inav_node_server/blob/main/START_HERE.md)
             - [部署指南](https://github.com/mediumui/inav_node_server/blob/main/DEPLOYMENT_COMPLETE.md)
             - [API 文档](https://github.com/mediumui/inav_node_server/blob/main/USAGE.md)
             - [打包指南](https://github.com/mediumui/inav_node_server/blob/main/PACKAGING.md)
-            
+
             ## 下载
             - [ZIP 包](#)
             - [Docker Hub](https://hub.docker.com/r/mediumui/inav-node-server)
@@ -92,8 +92,8 @@ jobs:
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: 安装依赖
         run: npm install
@@ -133,8 +133,8 @@ jobs:
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
 
       - name: 安装依赖
         run: npm install
@@ -191,7 +191,7 @@ jobs:
       - name: 上传 GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs'
+          path: "./docs"
 
   deploy-pages:
     runs-on: ubuntu-latest

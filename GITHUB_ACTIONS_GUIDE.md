@@ -19,6 +19,7 @@
 ### 1. **CI/CD Pipeline** (`ci-cd.yml`)
 
 **触发条件:**
+
 - `push` 到 `main` 或 `develop` 分支
 - `pull_request` 到 `main` 分支
 
@@ -46,6 +47,7 @@
 ### 2. **Deploy to Production** (`deploy.yml`)
 
 **触发条件:**
+
 - `push` 到 `main` 分支（仅当以下文件改变时）
 - 手动触发 `workflow_dispatch`
 
@@ -65,11 +67,13 @@
 ### 3. **Code Quality & Security** (`quality.yml`)
 
 **触发条件:**
+
 - `push` 到 `main` 或 `develop`
 - `pull_request` 到 `main`
 - 每周日定时运行
 
 **检查项:**
+
 - 代码格式 (Prettier)
 - ESLint
 - npm 审计
@@ -83,9 +87,11 @@
 ### 4. **Release & Publish** (`release.yml`)
 
 **触发条件:**
+
 - 创建版本标签 `v*.*.*`
 
 **执行步骤:**
+
 - 创建 GitHub Release
 - 上传构建产物 (ZIP、NPM 包)
 - 发布到 NPM
@@ -108,6 +114,7 @@ DOCKER_PASSWORD: 你的 Docker Hub 访问令牌
 ```
 
 **获取方法:**
+
 ```bash
 # 生成 Docker Hub 访问令牌
 # 1. 访问 https://hub.docker.com/settings/security
@@ -122,6 +129,7 @@ NPM_TOKEN: 你的 NPM 访问令牌
 ```
 
 **获取方法:**
+
 ```bash
 # 生成 NPM Token
 # 1. 访问 https://www.npmjs.com/settings/~/tokens
@@ -164,6 +172,7 @@ git push origin main
 ```
 
 GitHub Actions 会自动:
+
 - 运行测试
 - 构建 Docker 镜像
 - 生成 ZIP 和 NPM 包
@@ -181,6 +190,7 @@ git push origin v1.0.1
 ```
 
 GitHub Actions 会自动:
+
 - 创建 Release
 - 上传构建产物
 - 发布到 NPM
@@ -212,12 +222,14 @@ GitHub Actions 会自动:
 ### 常见问题排查
 
 **Docker 构建失败:**
+
 ```bash
 # 本地测试 Dockerfile
 docker build -t inav-node-server:test .
 ```
 
 **npm 发布失败:**
+
 ```bash
 # 检查 NPM Token 有效性
 npm whoami
@@ -227,6 +239,7 @@ npm view inav-node-server
 ```
 
 **测试失败:**
+
 ```bash
 # 本地运行测试
 npm test
@@ -239,6 +252,7 @@ npm test
 ### `.github/workflows/ci-cd.yml`
 
 主要的 CI/CD 流程，包括:
+
 - Node.js 版本矩阵测试
 - 依赖安装
 - 代码检查
@@ -248,6 +262,7 @@ npm test
 ### `.github/workflows/deploy.yml`
 
 部署工作流，包括:
+
 - Docker Compose 验证
 - Heroku 部署
 - Railway 部署
@@ -256,6 +271,7 @@ npm test
 ### `.github/workflows/quality.yml`
 
 代码质量检查，包括:
+
 - 代码格式检查
 - 安全漏洞扫描
 - 依赖审计
@@ -264,6 +280,7 @@ npm test
 ### `.github/workflows/release.yml`
 
 发布工作流，包括:
+
 - GitHub Release 创建
 - 构建产物上传
 - NPM 发布
@@ -369,18 +386,21 @@ RUNNER_OS             # 运行系统 (Linux, Windows, macOS)
 ## 💡 定制建议
 
 1. **添加 Slack 通知**
+
    ```yaml
    - name: Slack notification
      uses: slackapi/slack-github-action@v1
    ```
 
 2. **添加性能监控**
+
    ```yaml
    - name: Upload to Datadog
      uses: datadog/datadog-action@v1
    ```
 
 3. **添加依赖更新**
+
    ```yaml
    - name: Dependabot alerts
      uses: dependabot/fetch-metadata@v1
@@ -410,17 +430,20 @@ RUNNER_OS             # 运行系统 (Linux, Windows, macOS)
 ## 🚀 快速开始
 
 1. **配置 Secrets**
+
    ```
    Settings → Secrets and variables → Actions
    添加: DOCKER_USERNAME, DOCKER_PASSWORD, NPM_TOKEN
    ```
 
 2. **推送代码**
+
    ```bash
    git push origin main
    ```
 
 3. **查看工作流**
+
    ```
    Actions 标签 → 选择工作流
    ```
