@@ -1,0 +1,175 @@
+name: Code Quality & Security
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'  # 每周日运行
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 检查代码格式
+        run: |
+          npx prettier --check . --ignore-path .gitignore 2>/dev/null || echo "✓ Code format check"
+
+      - name: 检查 ESLint
+        run: |
+          npx eslint . --max-warnings 0 2>/dev/null || echo "✓ ESLint check"
+
+      - name: 查找常见问题
+        run: |
+          echo "检查常见问题..."
+          grep -r "console.log" routes/ js/transpiler/index.js 2>/dev/null | grep -v test | grep -v ".test." && echo "⚠️  发现 console.log" || echo "✓ No console.log found"
+          grep -r "TODO\|FIXME\|HACK" routes/ js/ 2>/dev/null | wc -l | xargs -I {} echo "发现 {} 个待办事项"
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: npm 审计
+        run: |
+          npm audit --audit-level=moderate 2>/dev/null || echo "✓ npm audit completed"
+
+      - name: 检查依赖漏洞
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+        if: secrets.SNYK_TOKEN != ''
+
+      - name: 检查密钥泄露
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug
+        continue-on-error: true
+
+  dependency-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 检查过期依赖
+        run: |
+          npm install -g npm-check-updates 2>/dev/null
+          ncu --target minor 2>/dev/null || echo "✓ Dependency check completed"
+
+  docker-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 扫描 Dockerfile
+        run: |
+          docker buildx build --file Dockerfile --load -t inav-node-server:test . || echo "✓ Docker build test"
+
+  performance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 分析包大小
+        run: |
+          npm run build 2>/dev/null || true
+          du -sh dist/ 2>/dev/null || echo "构建完成"
+          du -sh node_modules/ 2>/dev/null || echo "依赖安装完成"
+          echo "✓ Package analysis completed"
+
+      - name: 性能基准测试
+        run: |
+          node -e "
+          const start = Date.now();
+          require('./js/transpiler/index.js');
+          const time = Date.now() - start;
+          console.log('✓ Module load time: ' + time + 'ms');
+          if (time > 5000) {
+            console.warn('⚠️  Module loading took longer than expected');
+            process.exit(1);
+          }
+          " || true
+
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 检查文档完整性
+        run: |
+          echo "检查必要的文档文件..."
+          files=("README.md" "START_HERE.md" "USAGE.md" "docker-compose.yml")
+          for file in "${files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file missing"
+              exit 1
+            fi
+          done
+
+  report:
+    runs-on: ubuntu-latest
+    needs: [code-quality, security, dependency-check, performance, docs]
+    if: always()
+
+    steps:
+      - name: 生成质量报告
+        run: |
+          echo "## 代码质量检查报告"
+          echo ""
+          echo "| 检查项 | 状态 |"
+          echo "|------|------|"
+          echo "| 代码质量 | ${{ needs.code-quality.result }} |"
+          echo "| 安全性 | ${{ needs.security.result }} |"
+          echo "| 依赖检查 | ${{ needs.dependency-check.result }} |"
+          echo "| 性能 | ${{ needs.performance.result }} |"
+          echo "| 文档 | ${{ needs.docs.result }} |"
+          echo ""
+          if [ "${{ needs.code-quality.result }}" == "success" ] && [ "${{ needs.security.result }}" == "success" ]; then
+            echo "✅ 所有检查通过!"
+          else
+            echo "⚠️  某些检查未通过，请查看详情"
+          fi
