@@ -43,7 +43,7 @@ jobs:
 
   deploy-heroku:
     runs-on: ubuntu-latest
-    if: secrets.HEROKU_API_KEY != '' && github.event.inputs.environment != 'staging'
+    if: ${{ secrets.HEROKU_API_KEY != '' && github.event.inputs.environment != 'staging' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
 
   deploy-railway:
     runs-on: ubuntu-latest
-    if: secrets.RAILWAY_TOKEN != '' && github.event.inputs.environment != 'staging'
+    if: ${{ secrets.RAILWAY_TOKEN != '' && github.event.inputs.environment != 'staging' }}
 
     steps:
       - uses: actions/checkout@v4

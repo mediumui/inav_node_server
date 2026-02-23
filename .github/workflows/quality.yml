@@ -62,7 +62,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
-        if: secrets.SNYK_TOKEN != ''
+        if: ${{ secrets.SNYK_TOKEN != '' }}
 
       - name: 检查密钥泄露
         uses: trufflesecurity/trufflehog@main

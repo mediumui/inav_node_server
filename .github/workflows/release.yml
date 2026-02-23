@@ -125,7 +125,7 @@ jobs:
 
   publish-npm:
     runs-on: ubuntu-latest
-    if: secrets.NPM_TOKEN != ''
+    if: ${{ secrets.NPM_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -146,7 +146,7 @@ jobs:
 
   publish-docker:
     runs-on: ubuntu-latest
-    if: secrets.DOCKER_USERNAME != ''
+    if: ${{ secrets.DOCKER_USERNAME != '' }}
 
     steps:
       - uses: actions/checkout@v4
