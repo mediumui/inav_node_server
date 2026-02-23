@@ -125,7 +125,7 @@ jobs:
 
   publish-docker:
     runs-on: ubuntu-latest
-    if: secrets.DOCKER_USERNAME != ''
+    if: ${{ secrets.DOCKER_USERNAME != '' }}
 
     steps:
       - uses: actions/checkout@v4
